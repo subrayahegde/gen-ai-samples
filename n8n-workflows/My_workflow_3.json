@@ -1,0 +1,143 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "48579586-92d4-4817-8901-48b39ed34fd3",
+      "name": "Telegram Trigger",
+      "webhookId": "05705a05-01c8-4faf-b7aa-80d12e490e76",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gqvgi1jpFqqIrkIi",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.document.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "4f5618da-c3eb-4040-821b-2e9b1a3eadaa",
+      "name": "Telegram",
+      "webhookId": "a2294bbb-b558-4906-a29e-e5bea6ca9de2",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gqvgi1jpFqqIrkIi",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "8ccdf1cc-a7f9-42ef-83bc-007637cc772c",
+      "name": "Analyze Image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "HnGY77QNQs0cKyeV",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json['ParsedResults'][0]['ParsedText'];\n//Get the parsed text from OCR\n\nconst pattern = /\\b(?:Invoice|inv|bill)\\s*(?:#|no\\.?|no)\\s*[:\\-\\s]*([A-Za-z0-9\\-]+)/i;\n\n  // Search for the invoice number in the OCR parsed text\n  const match = text.match(pattern);\n  var parsedData = null\n\n  if (match && match[1]) {\n    parsedData = \"Invoice Number:  \" + match[1];  // Return the invoice number found\n  } \n\nreturn [{ parsedData}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "7703e5c7-2e4a-4a65-b579-0e1b0a3da8de",
+      "name": "Parse text"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Parse text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0e3e0446-7fa3-4e86-b66b-74fa7868a2a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c27849890a89e4912e5abf18982a2e05ccdb6555a0eddc3de5430bbfd5ac7b"
+  },
+  "id": "SBd2u2YUawPWtRWi",
+  "tags": []
+}

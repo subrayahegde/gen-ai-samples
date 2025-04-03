@@ -1,0 +1,8 @@
+invoice Number: 23456
+Date: 23-11-2021
+
+To - 
+Someone
+New Delhi
+
+Total Amount: Rs. 345

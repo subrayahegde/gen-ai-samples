@@ -1,0 +1,165 @@
+{
+  "name": "PDF Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "operationMode": "nodeInputBinary",
+        "chunkSize": 2000,
+        "chunkOverlap": 0,
+        "options": {
+          "binaryDataKey": "=data {{ $json['PDD FIle'] }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "e541b4e1-b432-44c3-8c4b-317770d95efa",
+      "name": "Summarization Chain"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "PDD FIle",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "d4c7a7ee-da1d-42fd-a913-a1ab399e1673",
+      "name": "Input Form",
+      "webhookId": "395f6c26-6d90-479c-a114-0d3b444f4e3d"
+    },
+    {
+      "parameters": {
+        "formTitle": "Input Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email",
+              "placeholder": "Enter your email here"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "87045873-4233-4d6c-8bd6-ac93866f673e",
+      "name": "Trigger Form",
+      "webhookId": "ef47a1f5-0b28-4f02-ae69-b9055449f405"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Here's the summary",
+        "completionMessage": "={{ $json.response.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "ee120769-a999-49a7-8c8e-218f9a3861da",
+      "name": "Output",
+      "webhookId": "1ce4f40f-3f6d-4cdd-b4d4-032a3711aa77"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        420,
+        200
+      ],
+      "id": "0afabcb5-604a-427f-bac2-2ee829846813",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cOIzmJtg4SwAD5yY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Form": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Form": {
+      "main": [
+        [
+          {
+            "node": "Input Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6f25bfd4-9ac4-44fb-b6bb-db661f284693",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c27849890a89e4912e5abf18982a2e05ccdb6555a0eddc3de5430bbfd5ac7b"
+  },
+  "id": "VYzYPaSGrgKhv3pt",
+  "tags": []
+}

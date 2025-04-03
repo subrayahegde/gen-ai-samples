@@ -1,0 +1,75 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0b62fa96-e2d4-45bb-b70c-078d00fcc02c",
+      "name": "Telegram Trigger",
+      "webhookId": "81c95710-11bb-4249-8cd9-479e4272ebce",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gqvgi1jpFqqIrkIi",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=HELLO {{ $json.message.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "fb3920fa-4f21-4d60-a032-5b4f94e43120",
+      "name": "Telegram",
+      "webhookId": "38a38a1b-55c6-44d8-8b34-e3870fc9d3cb",
+      "credentials": {
+        "telegramApi": {
+          "id": "Gqvgi1jpFqqIrkIi",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c00ee63-e673-4548-8139-42490787a0fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c27849890a89e4912e5abf18982a2e05ccdb6555a0eddc3de5430bbfd5ac7b"
+  },
+  "id": "qQfoJWOnv8Ds5FH3",
+  "tags": []
+}

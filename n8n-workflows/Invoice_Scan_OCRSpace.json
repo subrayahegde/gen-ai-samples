@@ -1,0 +1,392 @@
+{
+  "name": "Invoice-Scan-OCRSpace",
+  "nodes": [
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "file",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf, .docx, .jpeg, .jpg, .png",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "id": "e5d59a39-4c15-4fe8-87a1-2aabbb42f0bc",
+      "name": "Input Form",
+      "webhookId": "c8ce49b5-b65a-406a-a49f-23ae47226599"
+    },
+    {
+      "parameters": {
+        "formTitle": "Input Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email",
+              "placeholder": "Enter your email here"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f5bf589-625b-4581-b24b-b3144174ebf6",
+      "name": "Trigger Form",
+      "webhookId": "33ebbf7c-2ec8-47da-80d9-e9140a38c6ce"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.file.mimetype }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "85e17a9f-5427-4287-b125-7e9e552279fb"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8732fe4b-8270-43a1-9ac3-7c06fd2d04c5",
+                    "leftValue": "={{ $json.file.mimetype }}",
+                    "rightValue": "=image/jpeg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "33ad6614-0124-48f1-bb38-73fda2177001",
+                    "leftValue": "={{ $json.file.mimetype }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        420,
+        0
+      ],
+      "id": "d818ed29-dab2-4695-8d09-93de38d923af",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Here are the Invoice Details",
+        "completionMessage": "={{ $json.ParsedResults[0].ParsedText }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -120
+      ],
+      "id": "9805caa0-fcfc-4e22-9694-81a94f25171e",
+      "name": "Output Form",
+      "webhookId": "dbba9e1e-6cad-4bc5-b1b0-f2c76f062bc4"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Invoice Details",
+        "completionMessage": "={{ $json.ParsedResults[0].ParsedText }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        860,
+        60
+      ],
+      "id": "e6982b51-b189-4352-a83f-b6e01bba51d7",
+      "name": "Output Form1",
+      "webhookId": "47dc0603-68ae-4a40-a421-5e0b70f8a4e3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "K83121372988957"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        -120
+      ],
+      "id": "be4ec54a-3023-498e-804b-411dcb0ef3e7",
+      "name": "Analyze"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "K83121372988957"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        60
+      ],
+      "id": "85bf7258-afc4-4b00-9b2c-7e039c017d26",
+      "name": "Analyze1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "K83121372988957"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        220
+      ],
+      "id": "2c75626d-d13e-410c-a771-5d1b8c2ced0f",
+      "name": "Analyze2"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Invoice Details",
+        "completionMessage": "={{ $json.ParsedResults[0].ParsedText }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        860,
+        220
+      ],
+      "id": "e384b907-d310-4541-a088-fd455e9d6367",
+      "name": "Form",
+      "webhookId": "16595e74-c880-4fdd-82ef-67398a2bc3f2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Input Form": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Form": {
+      "main": [
+        [
+          {
+            "node": "Input Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Analyze",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze": {
+      "main": [
+        [
+          {
+            "node": "Output Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze1": {
+      "main": [
+        [
+          {
+            "node": "Output Form1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze2": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2b7fa4e1-057d-4fcf-981b-439e66542433",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c27849890a89e4912e5abf18982a2e05ccdb6555a0eddc3de5430bbfd5ac7b"
+  },
+  "id": "LlYY0BbagqJVGhQo",
+  "tags": []
+}

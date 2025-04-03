@@ -1,0 +1,175 @@
+{
+  "name": "Invoice-Scan-PDF",
+  "nodes": [
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "pdf_file",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b8015ade-c61d-4d43-97c7-c444ff8fd09e",
+      "name": "Input Form",
+      "webhookId": "7d5e8137-9e74-45a5-85e3-27811c491543"
+    },
+    {
+      "parameters": {
+        "formTitle": "Input Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email",
+              "placeholder": "Enter your email here"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1dcff67f-c301-435c-867f-4a1bb1afd4cb",
+      "name": "Trigger Form",
+      "webhookId": "253b3f0f-be37-469d-9423-3688574e0988"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json['ParsedResults'][0]['ParsedText'];\n//Get the parsed text from OCR\n\n// Regular expression to match possible invoice numbers\nconst invoiceNumberRegex = /\\b(?:Invoice\\s*#?\\s*(\\d{9})|(?:\\d{3}-\\d{3}-\\d{3})|(?:INVOICE-\\d{7})|(?:\\d{5})|(?:\\d{6})|(?:INV-\\d{6}))\\b/g;\n\n// Extracting invoice numbers\nlet match;\nconst invoiceNumbers = [];\n\nwhile ((match = invoiceNumberRegex.exec(text)) !== null) {\n  // match[1] contains the invoice number (if matched)\n  invoiceNumbers.push(match[1] || match[0]);\n}\n\n\nreturn [{ invoiceNumbers}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "b859e790-0c9b-41e3-b3c6-00d938365a0a",
+      "name": "Parse Text"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "K83121372988957"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "pdf_file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "da4264f9-0b52-49fa-9b9d-bb5280806acd",
+      "name": "Analyze Image"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Here are the Invoice Details",
+        "completionMessage": "={{ $json.invoiceNumbers }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ],
+      "id": "2f0745ad-9f60-48c9-a02b-d220467aac37",
+      "name": "Form",
+      "webhookId": "8612b454-ef0e-4d4e-b1cd-b7389edc0baf"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Input Form": {
+      "main": [
+        [
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Form": {
+      "main": [
+        [
+          {
+            "node": "Input Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Parse Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Text": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6dcbdddd-7410-4d60-bfa3-bd44f3835f73",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c27849890a89e4912e5abf18982a2e05ccdb6555a0eddc3de5430bbfd5ac7b"
+  },
+  "id": "20AzKFuYPAe87kNc",
+  "tags": []
+}
